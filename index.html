@@ -6,124 +6,92 @@
     <title>Strobe Master Pro</title>
     <style>
         :root {
-            --panel-bg: rgba(30, 30, 30, 0.8);
+            --panel-bg: rgba(20, 20, 20, 0.85);
             --text-color: #ffffff;
             --accent-color: #00ff88;
+            --input-bg: rgba(255, 255, 255, 0.1);
         }
 
         body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #000;
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            overflow: hidden; background-color: #000;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         #strobe-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 1;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1;
         }
 
         #ui-layer {
-            position: relative;
-            z-index: 10;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            pointer-events: none;
+            position: relative; z-index: 10; display: flex;
+            justify-content: center; align-items: center;
+            height: 100vh; pointer-events: none;
         }
 
         .controls {
-            background: var(--panel-bg);
-            color: var(--text-color);
-            padding: 2rem;
-            border-radius: 15px;
-            backdrop-filter: blur(10px);
-            pointer-events: auto;
-            width: 320px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            background: var(--panel-bg); color: var(--text-color);
+            padding: 1.5rem; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(15px); pointer-events: auto;
+            width: 340px; box-shadow: 0 20px 50px rgba(0,0,0,0.8);
             transition: opacity 0.3s;
         }
 
-        .controls.hidden {
-            opacity: 0;
-        }
+        .controls.hidden { opacity: 0; pointer-events: none; }
 
         .warning {
-            color: #ff4444;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            font-weight: bold;
-            margin-bottom: 1rem;
-            text-align: center;
-            border: 1px solid #ff4444;
-            padding: 5px;
+            color: #ff4444; font-size: 0.65rem; text-transform: uppercase;
+            font-weight: bold; margin-bottom: 1rem; text-align: center;
+            border: 1px solid #ff4444; padding: 5px; border-radius: 4px;
         }
 
-        h1 { margin: 0 0 1rem 0; font-size: 1.2rem; text-align: center; color: var(--accent-color); }
+        h1 { margin: 0 0 1rem 0; font-size: 1.1rem; text-align: center; letter-spacing: 2px; }
 
-        .form-group { margin-bottom: 1.2rem; }
-        label { display: block; margin-bottom: 0.5rem; font-size: 0.9rem; }
+        .form-group { margin-bottom: 1rem; }
+        label { display: block; margin-bottom: 0.4rem; font-size: 0.8rem; opacity: 0.8; }
 
-        input[type="range"] { width: 100%; cursor: pointer; }
-        input[type="color"] { 
-            width: 100%; height: 40px; border: none; border-radius: 5px; background: none; cursor: pointer;
-        }
-
-        .row { display: flex; align-items: center; justify-content: space-between; }
+        .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
         
-        .hz-display {
-            font-family: monospace;
-            font-size: 1.5rem;
-            color: var(--accent-color);
+        .hz-display { font-family: monospace; font-size: 1.4rem; color: var(--accent-color); }
+
+        input[type="range"] { width: 100%; cursor: pointer; accent-color: var(--accent-color); }
+        input[type="color"] { 
+            width: 50px; height: 30px; border: none; border-radius: 4px; background: none; cursor: pointer;
+        }
+
+        input[type="number"] {
+            background: var(--input-bg); border: 1px solid rgba(255,255,255,0.2);
+            color: white; padding: 5px; border-radius: 4px; width: 60px; font-size: 0.9rem;
+        }
+
+        .auto-config {
+            background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; margin-top: 5px;
+            display: none; /* Hidden by default until Auto is toggled */
         }
 
         button {
-            width: 100%;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            background: var(--accent-color);
-            color: #000;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
+            width: 100%; padding: 12px; border: none; border-radius: 8px;
+            background: var(--accent-color); color: #000;
+            font-weight: bold; cursor: pointer; margin-top: 15px;
+            transition: transform 0.1s;
         }
 
-        .hint {
-            font-size: 0.75rem;
-            text-align: center;
-            margin-top: 1rem;
-            opacity: 0.6;
-        }
+        button:active { transform: scale(0.98); }
+
+        .hint { font-size: 0.7rem; text-align: center; margin-top: 1rem; opacity: 0.5; }
 
         /* Toggle Switch */
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 40px;
-            height: 20px;
-        }
+        .switch { position: relative; display: inline-block; width: 34px; height: 18px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider {
-            position: absolute; cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #555; transition: .4s; border-radius: 20px;
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #444; transition: .3s; border-radius: 20px;
         }
         .slider:before {
-            position: absolute; content: "";
-            height: 14px; width: 14px; left: 3px; bottom: 3px;
-            background-color: white; transition: .4s; border-radius: 50%;
+            position: absolute; content: ""; height: 12px; width: 12px;
+            left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%;
         }
         input:checked + .slider { background-color: var(--accent-color); }
-        input:checked + .slider:before { transform: translateX(20px); }
+        input:checked + .slider:before { transform: translateX(16px); }
     </style>
 </head>
 <body>
@@ -132,8 +100,8 @@
 
     <div id="ui-layer">
         <div class="controls" id="panel">
-            <div class="warning">Warning: Photosensitivity / Epilepsy Trigger</div>
-            <h1>STROBE MASTER</h1>
+            <div class="warning">Warning: Photosensitivity Trigger</div>
+            <h1>STROBE MASTER PRO</h1>
 
             <div class="form-group">
                 <div class="row">
@@ -144,24 +112,35 @@
 
             <div class="form-group">
                 <div class="row">
-                    <label>Frequency (Hz)</label>
-                    <span class="hz-display" id="hzValue">10</span>
+                    <label>Manual Frequency</label>
+                    <span class="hz-display" id="hzValue">10.0</span>
                 </div>
                 <input type="range" id="freqSlider" min="1" max="60" step="0.1" value="10">
             </div>
 
             <div class="form-group">
                 <div class="row">
-                    <label>Auto-Cycle Frequency</label>
+                    <label>Auto-Cycle Mode</label>
                     <label class="switch">
                         <input type="checkbox" id="autoToggle">
                         <span class="slider"></span>
                     </label>
                 </div>
+                
+                <div id="autoConfig" class="auto-config">
+                    <div class="row" style="margin-bottom: 8px;">
+                        <label>Min Hz</label>
+                        <input type="number" id="minHz" value="2" min="0.1" max="60" step="0.1">
+                    </div>
+                    <div class="row">
+                        <label>Max Hz</label>
+                        <input type="number" id="maxHz" value="20" min="0.1" max="60" step="0.1">
+                    </div>
+                </div>
             </div>
 
             <button id="startBtn">START STROBE</button>
-            <div class="hint">Press 'H' to hide/show menu</div>
+            <div class="hint">Press <strong>H</strong> to hide controls</div>
         </div>
     </div>
 
@@ -171,6 +150,9 @@
         const hzValue = document.getElementById('hzValue');
         const colorPicker = document.getElementById('colorPicker');
         const autoToggle = document.getElementById('autoToggle');
+        const autoConfig = document.getElementById('autoConfig');
+        const minHzInput = document.getElementById('minHz');
+        const maxHzInput = document.getElementById('maxHz');
         const startBtn = document.getElementById('startBtn');
         const panel = document.getElementById('panel');
 
@@ -179,11 +161,15 @@
         let isOn = false;
         let autoTime = 0;
 
-        function updateHz() {
-            hzValue.textContent = freqSlider.value;
-        }
+        // UI Logic
+        autoToggle.addEventListener('change', () => {
+            autoConfig.style.display = autoToggle.checked ? 'block' : 'none';
+            freqSlider.disabled = autoToggle.checked;
+            freqSlider.style.opacity = autoToggle.checked ? '0.3' : '1';
+        });
 
-        freqSlider.addEventListener('input', updateHz);
+        const updateFreqDisplay = (val) => { hzValue.textContent = parseFloat(val).toFixed(1); };
+        freqSlider.addEventListener('input', (e) => updateFreqDisplay(e.target.value));
 
         startBtn.addEventListener('click', () => {
             isActive = !isActive;
@@ -192,26 +178,27 @@
             if (!isActive) canvas.style.backgroundColor = "#000";
         });
 
-        // Hide UI logic
         window.addEventListener('keydown', (e) => {
-            if (e.key.toLowerCase() === 'h') {
-                panel.classList.toggle('hidden');
-            }
+            if (e.key.toLowerCase() === 'h') panel.classList.toggle('hidden');
         });
 
         function animate(timestamp) {
             if (isActive) {
-                // Auto Cycle Logic (Loop between 2Hz and 30Hz)
+                let currentHz = parseFloat(freqSlider.value);
+
                 if (autoToggle.checked) {
-                    autoTime += 0.01;
-                    // Sine wave oscillation for smoothness
-                    const newFreq = 16 + 14 * Math.sin(autoTime); 
-                    freqSlider.value = newFreq.toFixed(1);
-                    updateHz();
+                    const min = parseFloat(minHzInput.value) || 1;
+                    const max = parseFloat(maxHzInput.value) || 30;
+                    
+                    autoTime += 0.005; // Speed of the cycle change
+                    // Oscillate between min and max
+                    const oscillation = (Math.sin(autoTime) + 1) / 2; // 0 to 1
+                    currentHz = min + (oscillation * (max - min));
+                    
+                    updateFreqDisplay(currentHz);
                 }
 
-                const hz = parseFloat(freqSlider.value);
-                const interval = 1000 / hz; // full cycle time in ms
+                const interval = 1000 / currentHz;
 
                 if (timestamp - lastSwitch >= interval / 2) {
                     isOn = !isOn;
@@ -219,7 +206,6 @@
                     lastSwitch = timestamp;
                 }
             }
-
             requestAnimationFrame(animate);
         }
 
